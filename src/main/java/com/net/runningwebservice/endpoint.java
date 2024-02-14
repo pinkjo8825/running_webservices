@@ -1,0 +1,394 @@
+package com.net.runningwebservice;
+
+import com.net.running_web_service.*;
+
+
+import org.apache.jena.ontology.*;
+import org.apache.jena.query.*;
+import org.apache.jena.rdf.model.*;
+import org.apache.jena.reasoner.Reasoner;
+import org.apache.jena.reasoner.rulesys.GenericRuleReasonerFactory;
+import org.apache.jena.util.PrintUtil;
+import org.apache.jena.vocabulary.RDF;
+import org.apache.jena.vocabulary.ReasonerVocabulary;
+import org.apache.jena.riot.RDFDataMgr;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ws.server.endpoint.annotation.Endpoint;
+import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
+import org.springframework.ws.server.endpoint.annotation.RequestPayload;
+import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+
+
+
+
+@Endpoint
+public class endpoint {
+
+    String SOURCE = "http://www.semanticweb.org/guind/ontologies/runningeventontology";
+    String NS = SOURCE + "#";
+    String output_filename = "/Users/net/Downloads/running-web-service/src/main/resources/WriteInstance3.rdf";
+    String rulesPath = "/Users/net/Downloads/running-web-service/src/main/resources/testrules1.rules";
+    String runURI = "http://www.semanticweb.org/guind/ontologies/runningeventontology#";
+    String ontologyPath = "/Users/net/Downloads/running-web-service/src/main/resources/RunningEventOntologyFinal2.rdf";
+
+    Model data = RDFDataMgr.loadModel("file:" + output_filename);
+    Model dataOnto = RDFDataMgr.loadModel("file:" + ontologyPath);
+
+
+    private static final String NAMESPACE_URI = "http://net.com/running-web-service";
+
+
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "getRecommendEventRequest")
+    @ResponsePayload
+    public GetRecommendEventResponse getRecommendEvent(@RequestPayload GetRecommendEventRequest request) {
+        System.out.println("test");
+        GetRecommendEventResponse response = new GetRecommendEventResponse();
+
+        OntModel m = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM);
+        OntDocumentManager dm = m.getDocumentManager();
+        dm.addAltEntry("http://www.semanticweb.org/guind/ontologies/runningeventontology",
+                "file:" + ontologyPath);
+        m.read("http://www.semanticweb.org/guind/ontologies/runningeventontology", "RDF/XML");
+        OntClass userClass = m.getOntClass(NS + "User");
+        OntProperty userActivityArea = m.getDatatypeProperty(NS + "ActivityAreaInterest");
+        OntProperty userStartPeriod = m.getDatatypeProperty(NS + "StartPeriodInterest");
+        OntProperty userReward = m.getDatatypeProperty(NS + "RewardInterest");
+        OntProperty hasRacetype = m.getObjectProperty(NS + "hasRaceTypeInterest");
+        OntProperty hasOrganization = m.getObjectProperty(NS + "hasOrganizationInterest");
+        OntProperty userLocation = m.getDatatypeProperty(NS + "LocationInterest");
+        OntProperty userTypeOfEvent = m.getDatatypeProperty(NS + "TypeOfEventInterest");
+        OntProperty userEventPrice = m.getDatatypeProperty(NS + "EventPriceInterest");
+        OntProperty userLevelEvent = m.getDatatypeProperty(NS + "LevelEventInterest");
+        OntProperty userStandardEvent = m.getDatatypeProperty(NS + "StandardEventInterest");
+        OntProperty userName = m.getDatatypeProperty(NS + "Username");
+
+        String userProfileName = "tempUserInf";
+        Resource userInstance = m.createResource(NS + userProfileName);
+
+        String districtReg = request.getDistrict();
+        String raceTypeReg = request.getRaceType();
+        String typeofEventReg = request.getTypeofEvent();
+        String priceReg = request.getPrice();
+        String organizationReg = request.getOrganization();
+        String activityAreaReg = request.getActivityArea();
+        String standardReg = request.getStandard();
+        String levelReg = request.getLevel();
+        String startPeriodReg = request.getStartPeriod();
+        String rewardReg = request.getReward();
+
+        if (!districtReg.isEmpty()) {
+            userInstance.addProperty(userLocation, districtReg);
+        }
+        if (!raceTypeReg.isEmpty()) {
+            userInstance.addProperty(hasRacetype, raceTypeReg);
+        }
+        if (!typeofEventReg.isEmpty()) {
+            userInstance.addProperty(userTypeOfEvent, typeofEventReg);
+        }
+        if (!priceReg.isEmpty()) {
+            userInstance.addProperty(userEventPrice, priceReg);
+        }
+        if (!organizationReg.isEmpty()) {
+            userInstance.addProperty(hasOrganization, organizationReg);
+        }
+        if (!activityAreaReg.isEmpty()) {
+            userInstance.addProperty(userActivityArea, activityAreaReg);
+        }
+        if (!standardReg.isEmpty()) {
+            userInstance.addProperty(userStandardEvent, standardReg);
+        }
+        if (!levelReg.isEmpty()) {
+            userInstance.addProperty(userLevelEvent, levelReg);
+        }
+        if (!startPeriodReg.isEmpty()) {
+            userInstance.addProperty(userStartPeriod, startPeriodReg);
+        }
+        if (!rewardReg.isEmpty()) {
+            userInstance.addProperty(userReward, rewardReg);
+        }
+
+        try (FileOutputStream out = new FileOutputStream(output_filename)) {
+            m.write(out, "RDF/XML");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        PrintUtil.registerPrefix("run", runURI);
+        Model dataInf = RDFDataMgr.loadModel("file:" + output_filename);
+
+        Model rm = ModelFactory.createDefaultModel();
+        Resource configuration = rm.createResource();
+        configuration.addProperty(ReasonerVocabulary.PROPruleMode, "hybrid");
+        configuration.addProperty(ReasonerVocabulary.PROPruleSet, rulesPath);
+        Reasoner reasoner = GenericRuleReasonerFactory.theInstance().create(configuration);
+        InfModel inf = ModelFactory.createInfModel(reasoner, dataInf);
+
+        Property p = dataInf.getProperty(runURI, "hasRecommend");
+        Property c = dataInf.getProperty(runURI, "confidence");
+        Resource a = dataInf.getResource(runURI + userProfileName);
+        Property rn = dataInf.getProperty(runURI, "RunningEventName");
+
+        StmtIterator i1 = inf.listStatements(a, p, (RDFNode) null);
+        StmtIterator i2 = inf.listStatements(a, c, (RDFNode) null);
+
+        Set<Statement> statements = new HashSet<>();
+        while (i1.hasNext()) {
+            statements.add(i1.nextStatement());
+        }
+        while (i2.hasNext()) {
+            statements.add(i2.nextStatement());
+        }
+
+        StmtIterator ic = inf.listStatements(a, p, (RDFNode) null);
+        while (ic.hasNext()) {
+            GetRecommendEventResponse.RunningEvent event = new GetRecommendEventResponse.RunningEvent();
+            String statementString = ic.nextStatement().getObject().toString();
+            System.out.println(statementString);
+
+            event.setRunningEventName(statementString);
+//            event.setRunningEventName("runningEventName");
+//            event.setConfidence((byte) 0);
+//            event.setDistrict("district");
+//            event.setRaceType("raceType");
+//            event.setTypeofEvent("typeofEvent");
+//            event.setPrice("price");
+//            event.setOrganization("organization");
+//            event.setActivityArea("activityArea");
+//            event.setStandard("standard");
+//            event.setLevel("level");
+//            event.setStartPeriod("startPeriod");
+//            event.setReward("reward");
+
+            response.getRunningEvent().add(event);
+        }
+
+        return response;
+    }
+
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "getUserProfileRequest")
+    @ResponsePayload
+    public GetUserProfileResponse getUserProfile(@RequestPayload GetUserProfileRequest request) {
+
+        GetUserProfileResponse response = new GetUserProfileResponse();
+
+        OntModel m = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM);
+        OntDocumentManager dm = m.getDocumentManager();
+        dm.addAltEntry("http://www.semanticweb.org/guind/ontologies/runningeventontology",
+                "file:" + ontologyPath);
+        m.read("http://www.semanticweb.org/guind/ontologies/runningeventontology", "RDF/XML");
+        OntClass userClass = m.getOntClass(NS + "User");
+        String username = request.getUsername();
+
+        String userProfileName = "tempUserInf";
+        Resource userInstance = m.createResource(NS + userProfileName);
+        userInstance.addProperty(RDF.type, userClass);
+
+        // Find the user resource by username
+        Property usernameProperty = dataOnto.createProperty(NS + "Username");
+        ResIterator users = dataOnto.listResourcesWithProperty(usernameProperty, username);
+
+        if (users.hasNext()) {
+            Resource user = users.nextResource();
+            // Iterate over the properties of the user
+            StmtIterator properties = user.listProperties();
+            while (properties.hasNext()) {
+                Statement stmt = properties.nextStatement();
+                Property property = stmt.getPredicate();
+                RDFNode value = stmt.getObject();
+                // Add the property and its value to the userInstance
+                if (value.isLiteral()) {
+                    // If the value is a literal, add it as a literal
+                    userInstance.addLiteral(property, value.asLiteral());
+                } else if (value.isResource()) {
+                    // If the value is a resource, add it as a resource
+                    userInstance.addProperty(property, value.asResource());
+                }
+            }
+
+        } else {
+            System.out.println("User not found");
+        }
+
+        try (FileOutputStream out = new FileOutputStream(output_filename)) {
+            m.write(out, "RDF/XML");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        PrintUtil.registerPrefix("run", runURI);
+        Model dataInf = RDFDataMgr.loadModel("file:" + output_filename);
+
+        Model rm = ModelFactory.createDefaultModel();
+        Resource configuration = rm.createResource();
+        configuration.addProperty(ReasonerVocabulary.PROPruleMode, "hybrid");
+        configuration.addProperty(ReasonerVocabulary.PROPruleSet, rulesPath);
+        Reasoner reasoner = GenericRuleReasonerFactory.theInstance().create(configuration);
+        InfModel inf = ModelFactory.createInfModel(reasoner, dataInf);
+
+        Property p = dataInf.getProperty(runURI, "hasRecommend");
+        Property c = dataInf.getProperty(runURI, "confidence");
+        Resource a = dataInf.getResource(runURI + userProfileName);
+        Property rn = dataInf.getProperty(runURI, "RunningEventName");
+
+        StmtIterator i1 = inf.listStatements(a, p, (RDFNode) null);
+        StmtIterator i2 = inf.listStatements(a, c, (RDFNode) null);
+
+        Set<Statement> statements = new HashSet<>();
+        while (i1.hasNext()) {
+            statements.add(i1.nextStatement());
+        }
+        while (i2.hasNext()) {
+            statements.add(i2.nextStatement());
+        }
+
+        StmtIterator ic = inf.listStatements(a, p, (RDFNode) null);
+        while (ic.hasNext()) {
+            GetUserProfileResponse.RunningEvent event = new GetUserProfileResponse.RunningEvent();
+            String statementString = ic.nextStatement().getObject().toString();
+            System.out.println(statementString);
+
+            event.setRunningEventName(statementString);
+
+            response.getRunningEvent().add(event);
+        }
+
+        return response;
+
+    }
+
+
+
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "setUserProfileRequest")
+    @ResponsePayload
+    public SetUserProfileResponse setUserProfile(@RequestPayload SetUserProfileRequest request) {
+        SetUserProfileResponse response = new SetUserProfileResponse();
+
+        OntModel m = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM);
+        OntDocumentManager dm = m.getDocumentManager();
+        dm.addAltEntry("http://www.semanticweb.org/guind/ontologies/runningeventontology",
+                "file:" + ontologyPath);
+        m.read("http://www.semanticweb.org/guind/ontologies/runningeventontology", "RDF/XML");
+        OntClass userClass = m.getOntClass(NS + "User");
+        OntProperty userActivityArea = m.getDatatypeProperty(NS + "ActivityAreaInterest");
+        OntProperty userStartPeriod = m.getDatatypeProperty(NS + "StartPeriodInterest");
+        OntProperty userReward = m.getDatatypeProperty(NS + "RewardInterest");
+        OntProperty hasRacetype = m.getObjectProperty(NS + "hasRaceTypeInterest");
+        OntProperty hasOrganization = m.getObjectProperty(NS + "hasOrganizationInterest");
+        OntProperty userLocation = m.getDatatypeProperty(NS + "LocationInterest");
+        OntProperty userTypeOfEvent = m.getDatatypeProperty(NS + "TypeOfEventInterest");
+        OntProperty userEventPrice = m.getDatatypeProperty(NS + "EventPriceInterest");
+        OntProperty userLevelEvent = m.getDatatypeProperty(NS + "LevelEventInterest");
+        OntProperty userStandardEvent = m.getDatatypeProperty(NS + "StandardEventInterest");
+        OntProperty userAge = m.getDatatypeProperty(NS + "UserAge");
+        OntProperty userName = m.getDatatypeProperty(NS + "Username");
+        OntProperty userNationality = m.getDatatypeProperty(NS + "UserNationality");
+        OntProperty userSex = m.getDatatypeProperty(NS + "UserSex");
+
+        System.out.println("Number of statements in OntModel: " + m.size());
+
+        String userProfileName = request.getUsername();
+        Resource userInstance = m.createResource(NS + userProfileName);
+
+        Byte ageReg = request.getAge();
+        String nationalityReg = request.getNationality();
+        String genderReg = request.getGender();
+        String districtReg = request.getDistrict();
+        String raceTypeReg = request.getRaceType();
+        String typeofEventReg = request.getTypeofEvent();
+        String priceReg = request.getPrice();
+        String organizationReg = request.getOrganization();
+        String activityAreaReg = request.getActivityArea();
+        String standardReg = request.getStandard();
+        String levelReg = request.getLevel();
+        String startPeriodReg = request.getStartPeriod();
+        String rewardReg = request.getReward();
+
+        userInstance.addProperty(RDF.type, userClass);
+        userInstance.addProperty(userName, userProfileName);
+        userInstance.addProperty(userAge, String.valueOf(ageReg));
+        userInstance.addProperty(userNationality, nationalityReg);
+        userInstance.addProperty(userSex, genderReg);
+        userInstance.addProperty(userLocation, districtReg);
+        userInstance.addProperty(hasRacetype, raceTypeReg);
+        userInstance.addProperty(userTypeOfEvent, typeofEventReg);
+        userInstance.addProperty(userEventPrice, priceReg);
+        userInstance.addProperty(hasOrganization, organizationReg);
+        userInstance.addProperty(userActivityArea, activityAreaReg);
+        userInstance.addProperty(userStandardEvent, standardReg);
+        userInstance.addProperty(userLevelEvent, levelReg);
+        userInstance.addProperty(userStartPeriod, startPeriodReg);
+        userInstance.addProperty(userReward, rewardReg);
+
+        try (FileOutputStream out = new FileOutputStream(ontologyPath)) {
+            m.write(out, "RDF/XML");
+            System.out.println(userInstance);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Number of statements in OntModel: " + m.size());
+        response.setStatus("success");
+
+        return response;
+    }
+
+
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "getEventRequest")
+    @ResponsePayload
+    public GetEventResponse getEventRequest(@RequestPayload GetEventRequest request) {
+        GetEventResponse response = new GetEventResponse();
+
+        String districtReg = request.getDistrict();
+        String raceTypeReg = request.getRaceType();
+        String typeofEventReg = request.getTypeofEvent();
+        String priceReg = request.getPrice();
+        String organizationReg = request.getOrganization();
+        String activityAreaReg = request.getActivityArea();
+        String standardReg = request.getStandard();
+        String levelReg = request.getLevel();
+        String startPeriodReg = request.getStartPeriod();
+        String rewardReg = request.getReward();
+
+        String queryString = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
+                "PREFIX run: <http://www.semanticweb.org/guind/ontologies/runningeventontology#>\n" +
+                "\n" +
+                "SELECT ?event ?eventName\n" +
+                "WHERE {\n" +
+                "  ?event rdf:type run:RunningEvent .\n" +
+                "  OPTIONAL { ?event run:RunningEventName ?eventName . }\n" +
+                "  OPTIONAL { ?event run:District ?district FILTER(?district = \"" + districtReg + "\") . }\n" +
+                "  OPTIONAL { ?event run:RaceType ?raceType FILTER(?raceType = \"" + raceTypeReg + "\") . }\n" +
+                "  OPTIONAL { ?event run:TypeOfEvent ?typeofEvent FILTER(?typeofEvent = \"" + typeofEventReg + "\") . }\n" +
+                "  OPTIONAL { ?event run:Price ?price FILTER(?price = \"" + priceReg + "\") . }\n" +
+                "  OPTIONAL { ?event run:Organization ?organization FILTER(?organization = \"" + organizationReg + "\") . }\n" +
+                "  OPTIONAL { ?event run:ActivityArea ?activityArea FILTER(?activityArea = \"" + activityAreaReg + "\") . }\n" +
+                "  OPTIONAL { ?event run:Standard ?standard FILTER(?standard = \"" + standardReg + "\") . }\n" +
+                "  OPTIONAL { ?event run:Level ?level FILTER(?level = \"" + levelReg + "\") . }\n" +
+                "  OPTIONAL { ?event run:StartPeriod ?startPeriod FILTER(?startPeriod = \"" + startPeriodReg + "\") . }\n" +
+                "  OPTIONAL { ?event run:Reward ?reward FILTER(?reward = \"" + rewardReg + "\") . }\n" +
+                "}";
+
+
+        Query query = QueryFactory.create(queryString);
+        QueryExecution qexec = QueryExecutionFactory.create(query, dataOnto);
+        ResultSet resultSet = qexec.execSelect();
+
+        while (resultSet.hasNext()) {
+            QuerySolution solution = resultSet.nextSolution();
+
+            String runningEventName = solution.contains("eventName") ? solution.getLiteral("eventName").getString() : "Unknown Event";
+
+            GetEventResponse.RunningEvent event = new GetEventResponse.RunningEvent();
+            event.setRunningEventName(runningEventName);
+
+            response.getRunningEvent().add(event);
+        }
+        qexec.close();
+        return response;
+    }
+
+}
