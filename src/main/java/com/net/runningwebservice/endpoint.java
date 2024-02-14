@@ -353,24 +353,54 @@ public class endpoint {
         String startPeriodReg = request.getStartPeriod();
         String rewardReg = request.getReward();
 
-        String queryString = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
-                "PREFIX run: <http://www.semanticweb.org/guind/ontologies/runningeventontology#>\n" +
-                "\n" +
-                "SELECT ?event ?eventName\n" +
-                "WHERE {\n" +
-                "  ?event rdf:type run:RunningEvent .\n" +
-                "  OPTIONAL { ?event run:RunningEventName ?eventName . }\n" +
-                "  OPTIONAL { ?event run:District ?district FILTER(?district = \"" + districtReg + "\") . }\n" +
-                "  OPTIONAL { ?event run:RaceType ?raceType FILTER(?raceType = \"" + raceTypeReg + "\") . }\n" +
-                "  OPTIONAL { ?event run:TypeOfEvent ?typeofEvent FILTER(?typeofEvent = \"" + typeofEventReg + "\") . }\n" +
-                "  OPTIONAL { ?event run:Price ?price FILTER(?price = \"" + priceReg + "\") . }\n" +
-                "  OPTIONAL { ?event run:Organization ?organization FILTER(?organization = \"" + organizationReg + "\") . }\n" +
-                "  OPTIONAL { ?event run:ActivityArea ?activityArea FILTER(?activityArea = \"" + activityAreaReg + "\") . }\n" +
-                "  OPTIONAL { ?event run:Standard ?standard FILTER(?standard = \"" + standardReg + "\") . }\n" +
-                "  OPTIONAL { ?event run:Level ?level FILTER(?level = \"" + levelReg + "\") . }\n" +
-                "  OPTIONAL { ?event run:StartPeriod ?startPeriod FILTER(?startPeriod = \"" + startPeriodReg + "\") . }\n" +
-                "  OPTIONAL { ?event run:Reward ?reward FILTER(?reward = \"" + rewardReg + "\") . }\n" +
-                "}";
+//      price, activityArea, StartPeriod, Reward aren't work
+        StringBuilder queryStringBuilder = new StringBuilder();
+        queryStringBuilder.append("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n")
+                .append("PREFIX ro: <http://www.semanticweb.org/guind/ontologies/runningeventontology#>\n\n")
+                .append("SELECT ?event ?eventName\nWHERE {\n")
+                .append("  ?event rdf:type ro:RunningEvent .\n")
+                .append("  ?event ro:RunningEventName ?eventName .\n");
+
+        if (districtReg != null && !districtReg.isEmpty()) {
+            queryStringBuilder.append("  ?event ro:hasEventVenue ?venue . ?venue ro:District \"").append(districtReg).append("\" .\n");
+        }
+
+        if (raceTypeReg != null && !raceTypeReg.isEmpty()) {
+            queryStringBuilder.append("  ?event ro:hasRaceType ?raceType . ?raceType ro:RaceTypeName \"").append(raceTypeReg).append("\" .\n");
+        }
+
+        if (typeofEventReg != null && !typeofEventReg.isEmpty()) {
+            queryStringBuilder.append("  ?event ro:TypeOfEvent \"").append(typeofEventReg).append("\" .\n");
+        }
+
+        if (organizationReg != null && !organizationReg.isEmpty()) {
+            queryStringBuilder.append("  ?event ro:isOrganizedBy ?org . ?org ro:OrganizationName \"").append(organizationReg).append("\" .\n");
+        }
+
+        if (activityAreaReg != null && !activityAreaReg.isEmpty()) {
+            queryStringBuilder.append("  ?event ro:ActivityArea \"").append(activityAreaReg).append("\" .\n");
+        }
+
+        if (standardReg != null && !standardReg.isEmpty()) {
+            queryStringBuilder.append("  ?event ro:StandardOfEvent \"").append(standardReg).append("\" .\n");
+        }
+
+        if (levelReg != null && !levelReg.isEmpty()) {
+            queryStringBuilder.append("  ?event ro:LevelOfEvent \"").append(levelReg).append("\" .\n");
+        }
+
+        if (startPeriodReg != null && !startPeriodReg.isEmpty()) {
+            queryStringBuilder.append("  ?event ro:StartPeriod \"").append(startPeriodReg).append("\" .\n");
+        }
+
+        if (rewardReg != null && !rewardReg.isEmpty()) {
+            queryStringBuilder.append("  ?event ro:Reward \"").append(rewardReg).append("\" .\n");
+        }
+
+        queryStringBuilder.append("}");
+
+        String queryString = queryStringBuilder.toString();
+        System.out.println(queryString);
 
 
         Query query = QueryFactory.create(queryString);
