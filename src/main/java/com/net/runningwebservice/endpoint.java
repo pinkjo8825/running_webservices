@@ -377,9 +377,7 @@ public class endpoint {
             queryStringBuilder.append("  ?event ro:isOrganizedBy ?org . ?org ro:OrganizationName \"").append(organizationReg).append("\" .\n");
         }
 
-        if (activityAreaReg != null && !activityAreaReg.isEmpty()) {
-            queryStringBuilder.append("  ?event ro:ActivityArea \"").append(activityAreaReg).append("\" .\n");
-        }
+
 
         if (standardReg != null && !standardReg.isEmpty()) {
             queryStringBuilder.append("  ?event ro:StandardOfEvent \"").append(standardReg).append("\" .\n");
@@ -389,13 +387,6 @@ public class endpoint {
             queryStringBuilder.append("  ?event ro:LevelOfEvent \"").append(levelReg).append("\" .\n");
         }
 
-        if (startPeriodReg != null && !startPeriodReg.isEmpty()) {
-            queryStringBuilder.append("  ?event ro:StartPeriod \"").append(startPeriodReg).append("\" .\n");
-        }
-
-        if (rewardReg != null && !rewardReg.isEmpty()) {
-            queryStringBuilder.append("  ?event ro:Reward \"").append(rewardReg).append("\" .\n");
-        }
 
         queryStringBuilder.append("}");
 
