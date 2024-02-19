@@ -137,13 +137,14 @@ public class endpoint {
 
 //        Set<Statement> statements = new HashSet<>();
         while (i1.hasNext()) {
+            GetRecommendEventResponse.RunningEvent event = new GetRecommendEventResponse.RunningEvent();
             Statement statement = i1.nextStatement();
 //            statements.add(statement);
-            String resultURI = statement.getObject().toString();
-            System.out.println(resultURI);
-            Resource re = data.getResource(resultURI);
+            String statementString = statement.getObject().toString();
+            System.out.println(statementString);
+            Resource re = data.getResource(statementString);
             StmtIterator i2 = inf.listStatements(re, c, (RDFNode) null);
-            int conf = Integer.MAX_VALUE;
+            int conf = 0;
             while (i2.hasNext()) {
                 Statement statement2 = i2.nextStatement();
 //                statements.add(statement2);
@@ -156,22 +157,12 @@ public class endpoint {
                 }
                 int roundedConfValue = (int) Math.round(confValue); // แปลง double เป็น int โดยใช้ Math.round()
 //                System.out.println("=> " + roundedConfValue);
-                if (roundedConfValue < conf) {
+                if (roundedConfValue > conf) {
                     conf = roundedConfValue;
                 }
             }
-            System.out.println(conf);
-        }
-
-        StmtIterator ic = inf.listStatements(a, p, (RDFNode) null);
-        while (ic.hasNext()) {
-            GetRecommendEventResponse.RunningEvent event = new GetRecommendEventResponse.RunningEvent();
-            String statementString = ic.nextStatement().getObject().toString();
-//            System.out.println(statementString);
-
             event.setRunningEventName(statementString);
-//            event.setRunningEventName("runningEventName");
-//            event.setConfidence((byte) 0);
+            event.setConfidence(String.valueOf(conf));
 //            event.setDistrict("district");
 //            event.setRaceType("raceType");
 //            event.setTypeofEvent("typeofEvent");
@@ -184,6 +175,7 @@ public class endpoint {
 //            event.setReward("reward");
 
             response.getRunningEvent().add(event);
+            System.out.println(conf);
         }
 
         return response;
@@ -255,26 +247,49 @@ public class endpoint {
         Property rn = dataInf.getProperty(runURI, "RunningEventName");
 
         StmtIterator i1 = inf.listStatements(a, p, (RDFNode) null);
-        StmtIterator i2 = inf.listStatements(a, c, (RDFNode) null);
 
-        Set<Statement> statements = new HashSet<>();
         while (i1.hasNext()) {
-            statements.add(i1.nextStatement());
-        }
-        while (i2.hasNext()) {
-            statements.add(i2.nextStatement());
-        }
-
-        StmtIterator ic = inf.listStatements(a, p, (RDFNode) null);
-        while (ic.hasNext()) {
             GetUserProfileResponse.RunningEvent event = new GetUserProfileResponse.RunningEvent();
-            String statementString = ic.nextStatement().getObject().toString();
+            Statement statement = i1.nextStatement();
+//            statements.add(statement);
+            String statementString = statement.getObject().toString();
             System.out.println(statementString);
-
+            Resource re = data.getResource(statementString);
+            StmtIterator i2 = inf.listStatements(re, c, (RDFNode) null);
+            int conf = 0;
+            while (i2.hasNext()) {
+                Statement statement2 = i2.nextStatement();
+//                statements.add(statement2);
+                String confStr = statement2.getString();
+                double confValue;
+                try {
+                    confValue = Double.parseDouble(confStr); // แปลง String เป็น double
+                } catch (NumberFormatException e) {
+                    continue;
+                }
+                int roundedConfValue = (int) Math.round(confValue); // แปลง double เป็น int โดยใช้ Math.round()
+                System.out.println("=> " + roundedConfValue);
+                if (roundedConfValue > conf) {
+                    conf = roundedConfValue;
+                }
+            }
             event.setRunningEventName(statementString);
+            event.setConfidence(String.valueOf(conf));
+//            event.setDistrict("district");
+//            event.setRaceType("raceType");
+//            event.setTypeofEvent("typeofEvent");
+//            event.setPrice("price");
+//            event.setOrganization("organization");
+//            event.setActivityArea("activityArea");
+//            event.setStandard("standard");
+//            event.setLevel("level");
+//            event.setStartPeriod("startPeriod");
+//            event.setReward("reward");
 
             response.getRunningEvent().add(event);
+            System.out.println(conf);
         }
+
 
         return response;
 

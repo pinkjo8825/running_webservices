@@ -5379,35 +5379,6 @@
     <rdf:type rdf:resource="http://www.semanticweb.org/guind/ontologies/runningeventontology#RaceType"/>
   </owl:NamedIndividual>
   <owl:NamedIndividual rdf:about="http://www.semanticweb.org/guind/ontologies/runningeventontology#July"/>
-  <User rdf:about="http://www.semanticweb.org/guind/ontologies/runningeventontology#exampleUserA">
-    <RewardInterest></RewardInterest>
-    <Username>exampleUserA</Username>
-    <LevelEventInterest></LevelEventInterest>
-    <EventPriceInterest></EventPriceInterest>
-    <ActivityAreaInterest>Natural</ActivityAreaInterest>
-    <StandardEventInterest>Standard</StandardEventInterest>
-    <TypeOfEventInterest></TypeOfEventInterest>
-    <hasRaceTypeInterest></hasRaceTypeInterest>
-    <UserAge>30</UserAge>
-    <LocationInterest></LocationInterest>
-    <ActivityAreaInterest></ActivityAreaInterest>
-    <StartPeriodInterest>Morning</StartPeriodInterest>
-    <UserSex></UserSex>
-    <UserNationality></UserNationality>
-    <RewardInterest>Prize</RewardInterest>
-    <LevelEventInterest>International Event</LevelEventInterest>
-    <hasOrganizationInterest></hasOrganizationInterest>
-    <hasOrganizationInterest>Siriroj Hospital</hasOrganizationInterest>
-    <UserAge>0</UserAge>
-    <hasRaceTypeInterest>Fun run</hasRaceTypeInterest>
-    <EventPriceInterest>Average</EventPriceInterest>
-    <UserSex>Male</UserSex>
-    <UserNationality>Thai</UserNationality>
-    <StartPeriodInterest></StartPeriodInterest>
-    <TypeOfEventInterest>charity Event</TypeOfEventInterest>
-    <LocationInterest>Thalang District</LocationInterest>
-    <StandardEventInterest></StandardEventInterest>
-  </User>
   <User rdf:about="http://www.semanticweb.org/guind/ontologies/runningeventontology#exampleUserB">
     <hasOrganizationInterest>Siriroj Hospital</hasOrganizationInterest>
     <hasRaceTypeInterest>Fun run</hasRaceTypeInterest>
