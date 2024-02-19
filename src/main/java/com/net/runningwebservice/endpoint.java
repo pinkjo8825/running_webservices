@@ -46,7 +46,7 @@ public class endpoint {
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "getRecommendEventRequest")
     @ResponsePayload
     public GetRecommendEventResponse getRecommendEvent(@RequestPayload GetRecommendEventRequest request) {
-        System.out.println("test");
+        System.out.println("getRecommendEvent");
         GetRecommendEventResponse response = new GetRecommendEventResponse();
 
         OntModel m = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM);
@@ -134,21 +134,40 @@ public class endpoint {
         Property rn = dataInf.getProperty(runURI, "RunningEventName");
 
         StmtIterator i1 = inf.listStatements(a, p, (RDFNode) null);
-        StmtIterator i2 = inf.listStatements(a, c, (RDFNode) null);
 
-        Set<Statement> statements = new HashSet<>();
+//        Set<Statement> statements = new HashSet<>();
         while (i1.hasNext()) {
-            statements.add(i1.nextStatement());
-        }
-        while (i2.hasNext()) {
-            statements.add(i2.nextStatement());
+            Statement statement = i1.nextStatement();
+//            statements.add(statement);
+            String resultURI = statement.getObject().toString();
+            System.out.println(resultURI);
+            Resource re = data.getResource(resultURI);
+            StmtIterator i2 = inf.listStatements(re, c, (RDFNode) null);
+            int conf = Integer.MAX_VALUE;
+            while (i2.hasNext()) {
+                Statement statement2 = i2.nextStatement();
+//                statements.add(statement2);
+                String confStr = statement2.getString();
+                double confValue;
+                try {
+                    confValue = Double.parseDouble(confStr); // แปลง String เป็น double
+                } catch (NumberFormatException e) {
+                    continue;
+                }
+                int roundedConfValue = (int) Math.round(confValue); // แปลง double เป็น int โดยใช้ Math.round()
+//                System.out.println("=> " + roundedConfValue);
+                if (roundedConfValue < conf) {
+                    conf = roundedConfValue;
+                }
+            }
+            System.out.println(conf);
         }
 
         StmtIterator ic = inf.listStatements(a, p, (RDFNode) null);
         while (ic.hasNext()) {
             GetRecommendEventResponse.RunningEvent event = new GetRecommendEventResponse.RunningEvent();
             String statementString = ic.nextStatement().getObject().toString();
-            System.out.println(statementString);
+//            System.out.println(statementString);
 
             event.setRunningEventName(statementString);
 //            event.setRunningEventName("runningEventName");
@@ -261,8 +280,6 @@ public class endpoint {
 
     }
 
-
-
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "setUserProfileRequest")
     @ResponsePayload
     public SetUserProfileResponse setUserProfile(@RequestPayload SetUserProfileRequest request) {
@@ -335,7 +352,6 @@ public class endpoint {
 
         return response;
     }
-
 
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "getEventRequest")
     @ResponsePayload
