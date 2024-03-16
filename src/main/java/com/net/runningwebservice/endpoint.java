@@ -2,7 +2,6 @@ package com.net.runningwebservice;
 
 import com.net.running_web_service.*;
 
-
 import org.apache.jena.ontology.*;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.*;
@@ -24,11 +23,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-
-
 @Endpoint
 public class endpoint {
-
     String SOURCE = "http://www.semanticweb.org/guind/ontologies/runningeventontology";
     String NS = SOURCE + "#";
     String output_filename = "/Users/net/Downloads/running-web-service/src/main/resources/WriteInstance3.rdf";
@@ -39,77 +35,71 @@ public class endpoint {
     Model data = RDFDataMgr.loadModel("file:" + output_filename);
     Model dataOnto = RDFDataMgr.loadModel("file:" + ontologyPath);
 
+    OntModel m = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM);
+
+    OntClass userClass = m.getOntClass(NS + "User");
+    OntProperty userActivityArea = m.getDatatypeProperty(NS + "ActivityAreaInterest");
+    OntProperty userStartPeriod = m.getDatatypeProperty(NS + "StartPeriodInterest");
+    OntProperty userReward = m.getDatatypeProperty(NS + "RewardInterest");
+    OntProperty hasRacetype = m.getObjectProperty(NS + "hasRaceTypeInterest");
+    OntProperty hasOrganization = m.getObjectProperty(NS + "hasOrganizationInterest");
+    OntProperty userLocation = m.getDatatypeProperty(NS + "LocationInterest");
+    OntProperty userTypeOfEvent = m.getDatatypeProperty(NS + "TypeOfEventInterest");
+    OntProperty userEventPrice = m.getDatatypeProperty(NS + "EventPriceInterest");
+    OntProperty userLevelEvent = m.getDatatypeProperty(NS + "LevelEventInterest");
+    OntProperty userStandardEvent = m.getDatatypeProperty(NS + "StandardEventInterest");
+    OntProperty userAge = m.getDatatypeProperty(NS + "UserAge");
+    OntProperty userName = m.getDatatypeProperty(NS + "Username");
+    OntProperty userNationality = m.getDatatypeProperty(NS + "UserNationality");
+    OntProperty userSex = m.getDatatypeProperty(NS + "UserSex");
+
+    OntDocumentManager dm = m.getDocumentManager();
 
     private static final String NAMESPACE_URI = "http://net.com/running-web-service";
-
 
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "getRecommendEventRequest")
     @ResponsePayload
     public GetRecommendEventResponse getRecommendEvent(@RequestPayload GetRecommendEventRequest request) {
-        System.out.println("getRecommendEvent");
-        GetRecommendEventResponse response = new GetRecommendEventResponse();
 
-        OntModel m = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM);
-        OntDocumentManager dm = m.getDocumentManager();
         dm.addAltEntry("http://www.semanticweb.org/guind/ontologies/runningeventontology",
                 "file:" + ontologyPath);
         m.read("http://www.semanticweb.org/guind/ontologies/runningeventontology", "RDF/XML");
-        OntClass userClass = m.getOntClass(NS + "User");
-        OntProperty userActivityArea = m.getDatatypeProperty(NS + "ActivityAreaInterest");
-        OntProperty userStartPeriod = m.getDatatypeProperty(NS + "StartPeriodInterest");
-        OntProperty userReward = m.getDatatypeProperty(NS + "RewardInterest");
-        OntProperty hasRacetype = m.getObjectProperty(NS + "hasRaceTypeInterest");
-        OntProperty hasOrganization = m.getObjectProperty(NS + "hasOrganizationInterest");
-        OntProperty userLocation = m.getDatatypeProperty(NS + "LocationInterest");
-        OntProperty userTypeOfEvent = m.getDatatypeProperty(NS + "TypeOfEventInterest");
-        OntProperty userEventPrice = m.getDatatypeProperty(NS + "EventPriceInterest");
-        OntProperty userLevelEvent = m.getDatatypeProperty(NS + "LevelEventInterest");
-        OntProperty userStandardEvent = m.getDatatypeProperty(NS + "StandardEventInterest");
-        OntProperty userName = m.getDatatypeProperty(NS + "Username");
+
+
+        GetRecommendEventResponse response = new GetRecommendEventResponse();
 
         String userProfileName = "tempUserInf";
         Resource userInstance = m.createResource(NS + userProfileName);
 
-        String districtReg = request.getDistrict();
-        String raceTypeReg = request.getRaceType();
-        String typeofEventReg = request.getTypeofEvent();
-        String priceReg = request.getPrice();
-        String organizationReg = request.getOrganization();
-        String activityAreaReg = request.getActivityArea();
-        String standardReg = request.getStandard();
-        String levelReg = request.getLevel();
-        String startPeriodReg = request.getStartPeriod();
-        String rewardReg = request.getReward();
-
-        if (!districtReg.isEmpty()) {
-            userInstance.addProperty(userLocation, districtReg);
+        if (!request.getDistrict().isEmpty()) {
+            userInstance.addProperty(userLocation, request.getDistrict());
         }
-        if (!raceTypeReg.isEmpty()) {
-            userInstance.addProperty(hasRacetype, raceTypeReg);
+        if (!request.getRaceType().isEmpty()) {
+            userInstance.addProperty(hasRacetype, request.getRaceType());
         }
-        if (!typeofEventReg.isEmpty()) {
-            userInstance.addProperty(userTypeOfEvent, typeofEventReg);
+        if (!request.getTypeofEvent().isEmpty()) {
+            userInstance.addProperty(userTypeOfEvent, request.getTypeofEvent());
         }
-        if (!priceReg.isEmpty()) {
-            userInstance.addProperty(userEventPrice, priceReg);
+        if (!request.getPrice().isEmpty()) {
+            userInstance.addProperty(userEventPrice, request.getPrice());
         }
-        if (!organizationReg.isEmpty()) {
-            userInstance.addProperty(hasOrganization, organizationReg);
+        if (!request.getOrganization().isEmpty()) {
+            userInstance.addProperty(hasOrganization, request.getOrganization());
         }
-        if (!activityAreaReg.isEmpty()) {
-            userInstance.addProperty(userActivityArea, activityAreaReg);
+        if (!request.getActivityArea().isEmpty()) {
+            userInstance.addProperty(userActivityArea, request.getActivityArea());
         }
-        if (!standardReg.isEmpty()) {
-            userInstance.addProperty(userStandardEvent, standardReg);
+        if (!request.getStandard().isEmpty()) {
+            userInstance.addProperty(userStandardEvent, request.getStandard());
         }
-        if (!levelReg.isEmpty()) {
-            userInstance.addProperty(userLevelEvent, levelReg);
+        if (!request.getLevel().isEmpty()) {
+            userInstance.addProperty(userLevelEvent, request.getLevel());
         }
-        if (!startPeriodReg.isEmpty()) {
-            userInstance.addProperty(userStartPeriod, startPeriodReg);
+        if (!request.getStartPeriod().isEmpty()) {
+            userInstance.addProperty(userStartPeriod, request.getStartPeriod());
         }
-        if (!rewardReg.isEmpty()) {
-            userInstance.addProperty(userReward, rewardReg);
+        if (!request.getReward().isEmpty()) {
+            userInstance.addProperty(userReward, request.getReward());
         }
 
         try (FileOutputStream out = new FileOutputStream(output_filename)) {
@@ -135,7 +125,6 @@ public class endpoint {
 
         StmtIterator i1 = inf.listStatements(a, p, (RDFNode) null);
 
-//        Set<Statement> statements = new HashSet<>();
         while (i1.hasNext()) {
             GetRecommendEventResponse.RunningEvent event = new GetRecommendEventResponse.RunningEvent();
             Statement statement = i1.nextStatement();
@@ -163,16 +152,6 @@ public class endpoint {
             }
             event.setRunningEventName(statementString);
             event.setConfidence(String.valueOf(conf));
-//            event.setDistrict("district");
-//            event.setRaceType("raceType");
-//            event.setTypeofEvent("typeofEvent");
-//            event.setPrice("price");
-//            event.setOrganization("organization");
-//            event.setActivityArea("activityArea");
-//            event.setStandard("standard");
-//            event.setLevel("level");
-//            event.setStartPeriod("startPeriod");
-//            event.setReward("reward");
 
             response.getRunningEvent().add(event);
             System.out.println(conf);
@@ -187,8 +166,6 @@ public class endpoint {
 
         GetUserProfileResponse response = new GetUserProfileResponse();
 
-        OntModel m = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM);
-        OntDocumentManager dm = m.getDocumentManager();
         dm.addAltEntry("http://www.semanticweb.org/guind/ontologies/runningeventontology",
                 "file:" + ontologyPath);
         m.read("http://www.semanticweb.org/guind/ontologies/runningeventontology", "RDF/XML");
@@ -300,26 +277,9 @@ public class endpoint {
     public SetUserProfileResponse setUserProfile(@RequestPayload SetUserProfileRequest request) {
         SetUserProfileResponse response = new SetUserProfileResponse();
 
-        OntModel m = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM);
-        OntDocumentManager dm = m.getDocumentManager();
         dm.addAltEntry("http://www.semanticweb.org/guind/ontologies/runningeventontology",
                 "file:" + ontologyPath);
         m.read("http://www.semanticweb.org/guind/ontologies/runningeventontology", "RDF/XML");
-        OntClass userClass = m.getOntClass(NS + "User");
-        OntProperty userActivityArea = m.getDatatypeProperty(NS + "ActivityAreaInterest");
-        OntProperty userStartPeriod = m.getDatatypeProperty(NS + "StartPeriodInterest");
-        OntProperty userReward = m.getDatatypeProperty(NS + "RewardInterest");
-        OntProperty hasRacetype = m.getObjectProperty(NS + "hasRaceTypeInterest");
-        OntProperty hasOrganization = m.getObjectProperty(NS + "hasOrganizationInterest");
-        OntProperty userLocation = m.getDatatypeProperty(NS + "LocationInterest");
-        OntProperty userTypeOfEvent = m.getDatatypeProperty(NS + "TypeOfEventInterest");
-        OntProperty userEventPrice = m.getDatatypeProperty(NS + "EventPriceInterest");
-        OntProperty userLevelEvent = m.getDatatypeProperty(NS + "LevelEventInterest");
-        OntProperty userStandardEvent = m.getDatatypeProperty(NS + "StandardEventInterest");
-        OntProperty userAge = m.getDatatypeProperty(NS + "UserAge");
-        OntProperty userName = m.getDatatypeProperty(NS + "Username");
-        OntProperty userNationality = m.getDatatypeProperty(NS + "UserNationality");
-        OntProperty userSex = m.getDatatypeProperty(NS + "UserSex");
 
         System.out.println("Number of statements in OntModel: " + m.size());
 
