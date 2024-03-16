@@ -252,16 +252,6 @@ public class endpoint {
             }
             event.setRunningEventName(statementString);
             event.setConfidence(String.valueOf(conf));
-//            event.setDistrict("district");
-//            event.setRaceType("raceType");
-//            event.setTypeofEvent("typeofEvent");
-//            event.setPrice("price");
-//            event.setOrganization("organization");
-//            event.setActivityArea("activityArea");
-//            event.setStandard("standard");
-//            event.setLevel("level");
-//            event.setStartPeriod("startPeriod");
-//            event.setReward("reward");
 
             response.getRunningEvent().add(event);
             System.out.println(conf);
@@ -284,37 +274,25 @@ public class endpoint {
         System.out.println("Number of statements in OntModel: " + m.size());
 
         String userProfileName = request.getUsername();
-        Resource userInstance = m.createResource(NS + userProfileName);
-
         Byte ageReg = request.getAge();
-        String nationalityReg = request.getNationality();
-        String genderReg = request.getGender();
-        String districtReg = request.getDistrict();
-        String raceTypeReg = request.getRaceType();
-        String typeofEventReg = request.getTypeofEvent();
-        String priceReg = request.getPrice();
-        String organizationReg = request.getOrganization();
-        String activityAreaReg = request.getActivityArea();
-        String standardReg = request.getStandard();
-        String levelReg = request.getLevel();
-        String startPeriodReg = request.getStartPeriod();
-        String rewardReg = request.getReward();
+
+        Resource userInstance = m.createResource(NS + userProfileName);
 
         userInstance.addProperty(RDF.type, userClass);
         userInstance.addProperty(userName, userProfileName);
         userInstance.addProperty(userAge, String.valueOf(ageReg));
-        userInstance.addProperty(userNationality, nationalityReg);
-        userInstance.addProperty(userSex, genderReg);
-        userInstance.addProperty(userLocation, districtReg);
-        userInstance.addProperty(hasRacetype, raceTypeReg);
-        userInstance.addProperty(userTypeOfEvent, typeofEventReg);
-        userInstance.addProperty(userEventPrice, priceReg);
-        userInstance.addProperty(hasOrganization, organizationReg);
-        userInstance.addProperty(userActivityArea, activityAreaReg);
-        userInstance.addProperty(userStandardEvent, standardReg);
-        userInstance.addProperty(userLevelEvent, levelReg);
-        userInstance.addProperty(userStartPeriod, startPeriodReg);
-        userInstance.addProperty(userReward, rewardReg);
+        userInstance.addProperty(userNationality, request.getNationality());
+        userInstance.addProperty(userSex, request.getGender());
+        userInstance.addProperty(userLocation, request.getDistrict());
+        userInstance.addProperty(hasRacetype, request.getRaceType());
+        userInstance.addProperty(userTypeOfEvent, request.getTypeofEvent());
+        userInstance.addProperty(userEventPrice, request.getPrice());
+        userInstance.addProperty(hasOrganization, request.getOrganization());
+        userInstance.addProperty(userActivityArea, request.getActivityArea());
+        userInstance.addProperty(userStandardEvent, request.getStandard());
+        userInstance.addProperty(userLevelEvent, request.getLevel());
+        userInstance.addProperty(userStartPeriod, request.getStartPeriod());
+        userInstance.addProperty(userReward, request.getReward());
 
         try (FileOutputStream out = new FileOutputStream(ontologyPath)) {
             m.write(out, "RDF/XML");
@@ -323,7 +301,7 @@ public class endpoint {
             e.printStackTrace();
         }
         System.out.println("Number of statements in OntModel: " + m.size());
-        response.setStatus("success");
+        response.setStatus("Receive");
 
         return response;
     }
@@ -346,8 +324,9 @@ public class endpoint {
 
 //      price, activityArea, StartPeriod, Reward aren't work
         StringBuilder queryStringBuilder = new StringBuilder();
-        queryStringBuilder.append("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n")
-                .append("PREFIX ro: <http://www.semanticweb.org/guind/ontologies/runningeventontology#>\n\n")
+        queryStringBuilder
+                .append("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n")
+                .append("PREFIX ro: <http://www.semanticweb.org/guind/ontologies/runningeventontology#>\n")
                 .append("SELECT ?event ?eventName\nWHERE {\n")
                 .append("  ?event rdf:type ro:RunningEvent .\n")
                 .append("  ?event ro:RunningEventName ?eventName .\n");
