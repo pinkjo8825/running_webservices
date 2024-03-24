@@ -28,6 +28,7 @@ public class endpoint {
     String SOURCE = "http://www.semanticweb.org/guind/ontologies/runningeventontology";
     String NS = SOURCE + "#";
     String output_filename = "/Users/net/Downloads/running-web-service/src/main/resources/WriteInstance3.rdf";
+//    String output_filename = "src/main/resources/WriteInstance3.rdf";
     String rulesPath = "/Users/net/Downloads/running-web-service/src/main/resources/testrules1.rules";
     String runURI = "http://www.semanticweb.org/guind/ontologies/runningeventontology#";
     String ontologyPath = "/Users/net/Downloads/running-web-service/src/main/resources/RunningEventOntologyFinal2.rdf";
@@ -60,6 +61,7 @@ public class endpoint {
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "getRecommendEventRequest")
     @ResponsePayload
     public GetRecommendEventResponse getRecommendEvent(@RequestPayload GetRecommendEventRequest request) {
+
 
         dm.addAltEntry("http://www.semanticweb.org/guind/ontologies/runningeventontology",
                 "file:" + ontologyPath);
